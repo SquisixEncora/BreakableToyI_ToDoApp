@@ -1,7 +1,6 @@
 package com.encora.todoback.todo_app.config;
 
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.cglib.core.Local;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
