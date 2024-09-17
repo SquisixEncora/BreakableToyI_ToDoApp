@@ -1,4 +1,5 @@
 import { NewTodoBtn } from "./components/NewTodoBtn"
+import { PaginationGroup } from "./components/Pagination"
 import { SearchFilter } from "./components/SearchFilter"
 import { ToDoList } from "./components/ToDoList"
 
@@ -16,6 +17,11 @@ function App() {
         <NewTodoBtn/>
         <div className="mb-4"/>
         <ToDoList/>
+        <div className="mb-4"/>
+          
+        <PaginationGroup/>
+        
+        
       </div>
       
     </div>

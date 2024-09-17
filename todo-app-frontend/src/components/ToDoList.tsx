@@ -12,32 +12,48 @@ import {
   Card,
   Button,
   Dialog,
-
 } from "@material-tailwind/react";
 import { useToDoContext } from "../context/ToDoContext";
-import { ToDoDialog } from "./ToDoDialog";  // Importar el diálogo
+import { ToDoDialog } from "./ToDoDialog";
 import { ToDo } from '../models/ToDo';
 
 const TABLE_HEAD = ["", "Name", "Priority", "Due Date", "Actions"];
 
 export function ToDoList() {
-  const { todos, markAsDone, markAsUndone, deleteTodo } = useToDoContext();
+  const { todos, handleSort, markAsDone, markAsUndone, deleteTodo } = useToDoContext();
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedTodo, setSelectedTodo] = useState<ToDo | null>(null);
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
   const [todoToDelete, setTodoToDelete] = useState<string | null>(null);
 
-
+  // Manejar la edición
   const handleEdit = (todo: ToDo) => {
     setSelectedTodo(todo);
     setOpenDialog(true);
   };
 
+  // Manejar la eliminación
   const handleDelete = (id: string) => {
-      setTodoToDelete(id);
-      setOpenConfirmDialog(true);
-  }
+    setTodoToDelete(id);
+    setOpenConfirmDialog(true);
+  };
 
+  // Calcular el estilo de fondo dependiendo de la fecha
+  const getRowBackgroundColor = (dueDate: Date | undefined) => {
+    if (!dueDate) return ''; // Sin color si no hay fecha de vencimiento
+
+    const today = new Date();
+    const due = new Date(dueDate);
+    const diffInDays = (due.getTime() - today.getTime()) / (1000 * 3600 * 24);
+
+    if (diffInDays <= 7) {
+      return 'bg-red-200'; // Menos de 1 semana: rojo
+    } else if (diffInDays <= 14) {
+      return 'bg-yellow-200'; // Entre 1 y 2 semanas: amarillo
+    } else {
+      return 'bg-green-200'; // Más de 2 semanas: verde
+    }
+  };
 
   return (
     <Card>
@@ -49,7 +65,13 @@ export function ToDoList() {
                 {TABLE_HEAD.map((head, index) => (
                   <th
                     key={head}
-                    className="cursor-pointer px-2.5 py-2 text-start font-medium"
+                    className={`cursor-pointer px-2.5 py-2 text-start font-medium ${
+                      (head === "Priority" || head === "Due Date") && 'hover:text-primary hover:underline'
+                    }`}
+                    onClick={() => {
+                      if (head === "Priority") handleSort("priority");
+                      if (head === "Due Date") handleSort("dueDate");
+                    }}
                   >
                     <Typography
                       type="small"
@@ -69,8 +91,11 @@ export function ToDoList() {
             </thead>
 
             <tbody className="group text-sm text-black dark:text-white">
-              {todos.map(({ id, done, text, priority, dueDate }, index) => (
-                <tr key={id} className="border-b border-surface last:border-0">
+              {todos.map(({ id, done, text, priority, dueDate }) => (
+                <tr
+                  key={id}
+                  className={`border-b border-surface last:border-0 ${getRowBackgroundColor(dueDate)}`}
+                >
                   <td className="p-3">
                     <Checkbox
                       checked={done}
@@ -82,7 +107,12 @@ export function ToDoList() {
 
                   <td className="p-3">
                     <div className="flex items-center gap-3">
-                      <Typography type="small">{text}</Typography>
+                      <Typography
+                        type="small"
+                        className={done ? "line-through" : ""}
+                      >
+                        {text}
+                      </Typography>
                     </div>
                   </td>
 
@@ -112,12 +142,13 @@ export function ToDoList() {
                         <Tooltip.Arrow />
                       </Tooltip.Content>
                     </Tooltip>
+
                     <Tooltip>
-                      <Tooltip.Trigger 
-                      as={IconButton} 
-                      variant="ghost" 
-                      color="secondary"
-                      onClick={() => handleDelete(id)}
+                      <Tooltip.Trigger
+                        as={IconButton}
+                        variant="ghost"
+                        color="secondary"
+                        onClick={() => handleDelete(id)}
                       >
                         <TrashSolid className="h-4 w-4 text-red-600 dark:text-white" />
                       </Tooltip.Trigger>
@@ -133,21 +164,10 @@ export function ToDoList() {
           </table>
         </div>
 
-        <div className="flex items-center justify-between border-t border-surface-light py-4">
-          <Typography type="small">Page 1 of 10</Typography>
-
-          <div className="flex gap-2">
-            <Button variant="outline" color="secondary" size="sm">
-              Previous
-            </Button>
-
-            <Button variant="outline" color="secondary" size="sm">
-              Next
-            </Button>
-          </div>
-        </div>
+        
       </div>
 
+      {/* Dialogo de edición */}
       {openDialog && selectedTodo && (
         <ToDoDialog
           isEdit={true}
@@ -156,6 +176,7 @@ export function ToDoList() {
         />
       )}
 
+      {/* Confirmación de eliminación */}
       {openConfirmDialog && todoToDelete && (
         <Dialog size="sm" open={openConfirmDialog}>
           <Dialog.Overlay>
@@ -192,9 +213,6 @@ export function ToDoList() {
           </Dialog.Overlay>
         </Dialog>
       )}
-
     </Card>
-
-    
   );
 }

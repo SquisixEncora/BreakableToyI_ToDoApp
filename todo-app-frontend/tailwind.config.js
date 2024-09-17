@@ -8,7 +8,9 @@ export default {
     "./node_modules/@material-tailwind/react/**/*.{js,ts,jsx,tsx}"
   ],
   theme: {
-    extend: {},
+    extend: {
+      
+    },
   },
   plugins: [mtConfig],
 }

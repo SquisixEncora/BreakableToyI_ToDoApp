@@ -2,9 +2,8 @@ import { useState } from "react";
 import {
   Dialog,
   Button,
-  Input,
-  Checkbox,
   Typography,
+  Select
 } from "@material-tailwind/react";
 import { Xmark } from "iconoir-react";
 import DatePicker from "react-datepicker";
@@ -14,7 +13,6 @@ import { useToDoContext } from "../context/ToDoContext";
 import "react-datepicker/dist/react-datepicker.css";  // Estilos base del Datepicker
 import "../styles/customDatePickerStyles.css";  
 
-// Diálogo para agregar o editar un To-Do
 export function ToDoDialog({
   isEdit = false,
   todo,
@@ -29,26 +27,39 @@ export function ToDoDialog({
   const [text, setText] = useState(todo?.text || "");
   const [priority, setPriority] = useState(todo?.priority || "Low");
   const [dueDate, setDueDate] = useState<Date | null>(todo?.dueDate ? new Date(todo.dueDate) : null); // Cambiado a Date | null
-  const [done, setDone] = useState(todo?.done || false);
+  const [error, setError] = useState(""); // Estado para almacenar el error
+
+  const maxLength = 120; // Longitud máxima permitida
 
   const handleSave = () => {
+    // Validación del texto
+    if (text.trim() === "") {
+      setError("The To-Do text cannot be empty.");
+      return;
+    } else if (text.length > maxLength) {
+      setError("The To-Do text cannot exceed 120 characters.");
+      return;
+    }
+
+    
+
     const newToDo: ToDo = {
       id: todo?.id || crypto.randomUUID(),
       text,
       priority,
-      done,
+      done: todo?.done || false,
       dueDate: dueDate ? new Date(dueDate) : undefined,
       creationDate: todo?.creationDate || new Date(),
-      doneDate: done ? new Date() : undefined,
+      doneDate: todo?.doneDate,
     };
 
     if (isEdit && todo) {
-      updateTodo(todo.id, newToDo);
+      updateTodo(newToDo);
     } else {
       addTodo(newToDo);
     }
 
-    onClose(); // Cierra el diálogo después de guardar
+    onClose(); // Solo cierra el diálogo si no hay errores
   };
 
   return (
@@ -63,66 +74,80 @@ export function ToDoDialog({
             {isEdit ? "Edit To-Do" : "Add To-Do"}
           </Typography>
 
-          <form className="mt-6 space-y-4">
-            <Input className="space-y-1.5">
+          <form
+            className="mt-6 space-y-4"
+            onSubmit={(e) => {
+              e.preventDefault(); // Evita el envío del formulario por defecto
+              handleSave();
+            }}
+          >
+            <div className="space-y-1.5">
               <Typography as="label" htmlFor="text" type="small" color="default" className="font-semibold">
                 To-Do Text
               </Typography>
-              <Input.Field
+              <textarea
                 id="text"
                 value={text}
                 placeholder="Describe your task"
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setText(e.target.value)}
+                className="w-full border rounded px-3 py-2 focus:border-blue-500"
+                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
+                  setText(e.target.value);
+                  setError(""); // Limpiar error al cambiar el texto
+                }}
+                maxLength={maxLength} // Limitar caracteres
+                rows={3} // Número inicial de filas
+                
               />
-            </Input>
+              
+              {error && <div>
+                {/* Mostrar error si el texto no es válido */}
+                {error && <Typography color="error" type="small">{error}</Typography>}
+                {/* Contador de caracteres */}
+              </div>}
+              <Typography type="small" className="text-gray-500">
+                {text.length}/{maxLength} characters
+              </Typography>
+            </div>
 
-            <Input className="space-y-1.5">
+            <div className="space-y-1.5">
               <Typography as="label" htmlFor="priority" type="small" color="default" className="font-semibold">
                 Priority
               </Typography>
-              <select
+              <Select
                 id="priority"
                 value={priority}
+                onValueChange={(value: string) => setPriority(value as "High" | "Medium" | "Low")}
                 className="w-full border rounded px-3 py-2"
-                onChange={(e) => setPriority(e.target.value as "High" | "Medium" | "Low")}
               >
-                <option value="High">High</option>
-                <option value="Medium">Medium</option>
-                <option value="Low">Low</option>
-              </select>
-            </Input>
+                <Select.Trigger className="w-full" >
+                  
+                </Select.Trigger>
+                <Select.List>
+                  <Select.Option value="High">High</Select.Option>
+                  <Select.Option value="Medium">Medium</Select.Option>
+                  <Select.Option value="Low">Low</Select.Option>
+                </Select.List>
+              </Select>
+            </div>
 
             <div className="space-y-1.5">
               <Typography as="label" htmlFor="dueDate" type="small" color="default" className="font-semibold">
                 Due Date
               </Typography>
-              
             </div>
+
             <div className="space-y-1.5">
               <DatePicker
-                  selected={dueDate} // Cambiado para aceptar Date | null
-                  onChange={(date) => setDueDate(date)} // DatePicker trabaja con Date | null
-                  className="w-full border rounded px-3 py-2"
-                  placeholderText="Select a date"
-                  dateFormat="MMM d, yyyy"
-                  isClearable
-                />
-              </div>
-
-            <div className="mb-4 flex items-center gap-2">
-              <Checkbox
-                id="done"
-                checked={done}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDone(e.target.checked)}
-              >
-                <Checkbox.Indicator />
-              </Checkbox>
-              <Typography as="label" htmlFor="done" className="text-foreground">
-                Done
-              </Typography>
+                selected={dueDate} // Cambiado para aceptar Date | null
+                onChange={(date) => setDueDate(date)} // DatePicker trabaja con Date | null
+                className="w-full border rounded px-3 py-2"
+                placeholderText="Select a date"
+                dateFormat="MMM d, yyyy"
+                isClearable
+              />
             </div>
 
-            <Button isFullWidth onClick={handleSave}>
+            <Button type="submit" isFullWidth>
               {isEdit ? "Update To-Do" : "Add To-Do"}
             </Button>
           </form>
