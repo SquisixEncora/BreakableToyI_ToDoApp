@@ -25,7 +25,6 @@ public class ToDoRepository {
 );
 
 public PaginatedResponse<ToDo> findTodos(int page, int size, String sortBy, String sortDirection, String priority, Boolean done, String name) {
-    System.out.println("Sorting by: " + sortBy + " in " + sortDirection + " order");
 
     List<ToDo> filteredTodos = todos.stream()
         .filter(todo -> priority == null || todo.getPriority().equals(priority))
@@ -60,14 +59,14 @@ public PaginatedResponse<ToDo> findTodos(int page, int size, String sortBy, Stri
         })
         .collect(Collectors.toList());
 
-    int totalElements = filteredTodos.size();
-    List<ToDo> paginatedTodos = filteredTodos.stream()
-        .skip(page * size)
-        .limit(size)
-        .collect(Collectors.toList());
+        int totalElements = filteredTodos.size();
+        List<ToDo> paginatedTodos = filteredTodos.stream()
+            .skip(page * size)
+            .limit(size)
+            .collect(Collectors.toList());
 
-    return new PaginatedResponse<>(paginatedTodos, page, size, totalElements);
-}
+        return new PaginatedResponse<>(paginatedTodos, page, size, totalElements);
+    }
 
 
 

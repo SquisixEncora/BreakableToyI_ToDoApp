@@ -57,7 +57,7 @@ export function ToDoList() {
 
   return (
     <Card>
-      <div className="w-full">
+      <div className="w-full h-[680px] overflow-auto">
         <div className="mt-4 w-full overflow-hidden rounded-lg border border-surface">
           <table className="w-full">
             <thead className="border-b border-surface bg-surface-light text-sm font-medium text-foreground dark:bg-surface-dark">

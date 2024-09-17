@@ -1,6 +1,7 @@
 package com.encora.todoback.todo_app.config;
 
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.cglib.core.Local;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -31,6 +32,10 @@ public class DataLoader {
                 // Crear fecha de creación aleatoria en los últimos 30 días
                 LocalDateTime creationDate = LocalDateTime.now().minusDays(random.nextInt(30));
                 todo.setCreationDate(creationDate);
+                if (todo.isDone()) {
+                    LocalDateTime doneDate = creationDate.plusDays(random.nextInt(30));
+                    todo.setDoneDate(doneDate);
+                }
 
                 // Crear fecha de vencimiento aleatoria dentro del próximo mes
                 LocalDateTime dueDate = random.nextBoolean() ?

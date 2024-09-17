@@ -25,6 +25,8 @@ interface ToDoContextType {
   deleteTodo: (id: string) => void;
   setFilters: React.Dispatch<React.SetStateAction<{ name?: string; priority?: string; done?: boolean }>>;
   handleSearch: (name: string, priority: string, state: string) => void;
+  calculateAverageCompletionTime: (unit: 'days' | 'hours' | 'minutes' | 'seconds') => number;
+  calculateAverageTimeByPriority: (priority: 'High' | 'Medium' | 'Low', unit: 'days' | 'hours' | 'minutes' | 'seconds') => number;
 }
 
 
@@ -116,6 +118,7 @@ export const ToDoProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     try {
       await axiosInstance.delete(`/${id}`);
       setTodos((prev) => prev.filter((todo) => todo.id !== id));
+      fetchTodos(currentPage); // Refrescar la lista con la paginación actual
     } catch (error) {
       console.error('Error al eliminar la tarea:', error);
     }
@@ -147,6 +150,49 @@ export const ToDoProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setFilters(filters);
   };
 
+  const convertTime = (timeInDays: number, unit: 'days' | 'hours' | 'minutes' | 'seconds') => {
+    switch (unit) {
+      case 'hours':
+        return timeInDays * 24;
+      case 'minutes':
+        return timeInDays * 24 * 60;
+      case 'seconds':
+        return timeInDays * 24 * 60 * 60;
+      default:
+        return timeInDays; // por defecto es en días
+    }
+  };
+
+  const calculateAverageCompletionTime = (unit: 'days' | 'hours' | 'minutes' | 'seconds' = 'days') => {
+    const completedTodos = todos.filter((todo) => todo.done && todo.doneDate);
+    if (completedTodos.length === 0) return 0;
+
+    const totalDays = completedTodos.reduce((sum, todo) => {
+      const creationDate = new Date(todo.creationDate).getTime();
+      const doneDate = new Date(todo.doneDate!).getTime();
+      const differenceInDays = (doneDate - creationDate) / (1000 * 3600 * 24);
+      return sum + differenceInDays;
+    }, 0);
+
+    const averageInDays = totalDays / completedTodos.length;
+    return convertTime(averageInDays, unit);
+  };
+
+  const calculateAverageTimeByPriority = (priority: 'High' | 'Medium' | 'Low', unit: 'days' | 'hours' | 'minutes' | 'seconds' = 'days') => {
+    const filteredTodos = todos.filter((todo) => todo.done && todo.doneDate && todo.priority === priority);
+    if (filteredTodos.length === 0) return 0;
+
+    const totalDays = filteredTodos.reduce((sum, todo) => {
+      const creationDate = new Date(todo.creationDate).getTime();
+      const doneDate = new Date(todo.doneDate!).getTime();
+      const differenceInDays = (doneDate - creationDate) / (1000 * 3600 * 24);
+      return sum + differenceInDays;
+    }, 0);
+
+    const averageInDays = totalDays / filteredTodos.length;
+    return convertTime(averageInDays, unit);
+  };
+
   
 
   return (
@@ -169,6 +215,8 @@ export const ToDoProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         markAsDone,
         markAsUndone,
         deleteTodo,
+        calculateAverageCompletionTime,
+        calculateAverageTimeByPriority,
       }}
     >
       {children}

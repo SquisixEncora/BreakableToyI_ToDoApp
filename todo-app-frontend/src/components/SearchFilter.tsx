@@ -21,7 +21,7 @@ export function SearchFilter() {
   return (
     <Card>
       <CardBody>
-        <Typography variant="h5" className="mb-2">
+        <Typography variant="h1" className="text-lg font-semibold text-gray-800 mb-2">
           Search - Filter
         </Typography>
 

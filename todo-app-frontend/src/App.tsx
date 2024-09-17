@@ -1,3 +1,4 @@
+import { AverageTime } from "./components/AverageTime"
 import { NewTodoBtn } from "./components/NewTodoBtn"
 import { PaginationGroup } from "./components/Pagination"
 import { SearchFilter } from "./components/SearchFilter"
@@ -18,10 +19,10 @@ function App() {
         <div className="mb-4"/>
         <ToDoList/>
         <div className="mb-4"/>
-          
         <PaginationGroup/>
-        
-        
+        <div className="mb-4"/>
+        <AverageTime/>
+        <div className="mb-4"/>
       </div>
       
     </div>
