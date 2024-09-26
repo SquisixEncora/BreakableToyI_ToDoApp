@@ -14,13 +14,13 @@ export function NewTodoBtn() {
   return (
     <>
       {/* Botón para abrir el diálogo */}
-      <Button onClick={openDialog}>
+      <Button onClick={openDialog} className={"w-2/12"}>
         + New To Do
       </Button>
 
       {/* Renderizar el diálogo si está abierto */}
       {isDialogOpen && (
-        <ToDoDialog isEdit={false} onClose={closeDialog} />
+        <ToDoDialog isEdit={false} onClose={closeDialog} /> // if the default value of isEdit is false why you need to specified here? it's not necessary
       )}
     </>
   );
