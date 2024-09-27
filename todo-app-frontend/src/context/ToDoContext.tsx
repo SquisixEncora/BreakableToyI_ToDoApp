@@ -32,7 +32,7 @@ interface ToDoContextType {
 
 
 const ToDoContext = createContext<ToDoContextType | undefined>(undefined);
-
+// excellent use of custom hooks and context, I suggest to extract the custom hook to its own file
 export const useToDoContext = () => {
   const context = useContext(ToDoContext);
   if (!context) {
@@ -49,7 +49,7 @@ export const ToDoProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [sortConfig, setSortConfig] = useState<{ sortBy: string | undefined; sortDirection: 'asc' | 'desc' } | undefined>(undefined);
   const [filters, setFilters] = useState<{ name?: string; priority?: string; done?: boolean }>({});
 
-  
+
   const fetchTodos = async (page: number = currentPage) => {
     try {
       const response = await axiosInstance.get<PaginatedResponse<ToDo>>('', {
@@ -60,7 +60,7 @@ export const ToDoProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           ...sortConfig, // Aplica la ordenación
         },
       });
-      
+
       setTodos(response.data.content);
       setTotalPages(response.data.totalPages);
       setCurrentPage(page);
@@ -68,7 +68,7 @@ export const ToDoProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       console.error('Error al obtener las tareas:', error);
     }
   };
-  
+
 
   useEffect(() => {
     fetchTodos(currentPage);
@@ -136,9 +136,9 @@ export const ToDoProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (sortConfig && sortConfig.sortBy === sortBy && sortConfig.sortDirection === 'asc') {
       sortDirection = 'desc';
     }
-    
+
     setSortConfig({ sortBy, sortDirection });
-    
+
   };
 
   const handleSearch = (name: string, priority: string, state: string) => {
@@ -193,7 +193,7 @@ export const ToDoProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return convertTime(averageInDays, unit);
   };
 
-  
+
 
   return (
     <ToDoContext.Provider
@@ -206,10 +206,10 @@ export const ToDoProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setPageSize,
         setCurrentPage,
         fetchTodos,
-        handlePageChange, 
+        handlePageChange,
         handleSort,
         handleSearch,
-        setFilters, 
+        setFilters,
         addTodo,
         updateTodo,
         markAsDone,

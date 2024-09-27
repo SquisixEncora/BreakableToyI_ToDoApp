@@ -8,27 +8,22 @@ import { ToDoList } from "./components/ToDoList"
 
 
 function App() {
-  
 
+// I add the flex class to have a more clean code
   return (
     <div className="bg-gray-900 min-h-screen flex flex-col">
-      <div className="mt-6 w-3/4 mx-auto">
+      <div className="my-6 w-3/4 mx-auto flex flex-col gap-4">
         <SearchFilter/>
-        <div className="mb-4"/>
         <NewTodoBtn/>
-        <div className="mb-4"/>
         <ToDoList/>
-        <div className="mb-4"/>
         <PaginationGroup/>
-        <div className="mb-4"/>
         <AverageTime/>
-        <div className="mb-4"/>
       </div>
-      
+
     </div>
-    
-      
-    
+
+
+
   )
 }
 
